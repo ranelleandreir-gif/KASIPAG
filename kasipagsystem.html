@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasipag REAL BANK CORE ENGINE</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<style>
+body{margin:0;font-family:Inter;background:#070b14;color:#e6e6e6;}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px;background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1)}
+.container{padding:15px}
+.card{background:rgba(255,255,255,0.05);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);margin-bottom:12px}
+input,select,button{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none}
+button{background:#4da3ff;color:#fff;font-weight:600;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.hidden{display:none}
+.role{padding:4px 8px;background:#a855f7;border-radius:6px;font-size:12px}
+.badge{padding:4px 8px;border-radius:6px;font-size:12px;background:#fbbf24;color:black}
+.danger{background:#ef4444;color:white}
+.success{background:#22c55e;color:white}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="container">
+  <div class="card">
+    <h3>🏦 Real Bank Core Engine</h3>
+    <input id="email" placeholder="Email">
+    <input id="pass" type="password" placeholder="Password">
+    <select id="role">
+      <option value="admin">Admin</option>
+      <option value="cashier">Cashier</option>
+      <option value="collector">Collector</option>
+    </select>
+    <button onclick="login()">Login Secure</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<header>
+  <div>🏦 REAL BANK CORE ENGINE</div>
+  <div>
+    <span class="role" id="roleTag"></span>
+    <button onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ADMIN -->
+<div id="adminDash" class="hidden">
+  <div class="card">
+    <h3>Admin Control Center</h3>
+    <div id="adminStats"></div>
+    <button onclick="generateReport()">📊 Generate Bank Report</button>
+  </div>
+</div>
+
+<!-- CASHIER -->
+<div id="cashierDash" class="hidden">
+  <div class="card">
+    <h3>Cashier Verification Core</h3>
+    <div id="cashierList"></div>
+  </div>
+</div>
+
+<!-- COLLECTOR -->
+<div id="collectorDash" class="hidden">
+  <div class="card">
+    <h3>Collector Field Engine</h3>
+    <input id="borrower" placeholder="Borrower">
+    <input id="amount" placeholder="Amount">
+    <select id="cashierSelect"></select>
+    <button onclick="sendCollection()">Send to Cashier</button>
+    <div id="collectorList"></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+const firebaseConfig={
+  apiKey:"AIzaSyDUsDkNGffjKdp8b0fIPswzUSKtXEWE_BI",
+  authDomain:"kasipag-a6f31.firebaseapp.com",
+  projectId:"kasipag-a6f31"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+const auth=firebase.auth();
+
+let role="";
+let uid="";
+
+// AUTH LOGIN
+function login(){
+  auth.signInWithEmailAndPassword(email.value,pass.value)
+  .then(u=>{
+    uid=u.user.uid;
+    role=document.getElementById('role').value;
+
+    loginPage.classList.add('hidden');
+    app.classList.remove('hidden');
+
+    roleTag.innerText=role.toUpperCase();
+
+    location.hash=role;
+    router();
+    init();
+  });
+}
+
+window.addEventListener("hashchange",router);
+
+function router(){
+  adminDash.classList.add('hidden');
+  cashierDash.classList.add('hidden');
+  collectorDash.classList.add('hidden');
+
+  if(location.hash==="#admin") adminDash.classList.remove('hidden');
+  if(location.hash==="#cashier") cashierDash.classList.remove('hidden');
+  if(location.hash==="#collector") collectorDash.classList.remove('hidden');
+}
+
+// INIT SYSTEM
+function init(){
+
+// ADMIN CORE
+if(role==="admin"){
+  db.collection("collections").onSnapshot(s=>{
+    let total=0;
+    s.forEach(d=>total+=Number(d.data().amount||0));
+    adminStats.innerHTML=`
+      <div>Total Records: ${s.size}</div>
+      <div>Total Volume: ₱${total}</div>
+      <div class='badge success'>SYSTEM ACTIVE</div>
+    `;
+  });
+}
+
+// CASHIER CORE (BANK VERIFICATION)
+if(role==="cashier"){
+  db.collection("collections")
+  .where("cashier","==",uid)
+  .onSnapshot(s=>{
+    let html="";
+    s.forEach(d=>{
+      let x=d.data();
+      html+=`
+        <div class='card'>
+          <b>${x.borrower}</b><br>
+          ₱${x.amount}<br>
+          Status: <span class='badge ${x.status=="verified"?"success":"danger"}'>${x.status}</span>
+          <button onclick="verify('${d.id}')">✔ Verify Payment</button>
+        </div>
+      `;
+    });
+    cashierList.innerHTML=html;
+  });
+}
+
+// COLLECTOR CORE
+if(role==="collector"){
+
+  // load cashiers realtime
+  db.collection("users").where("role","==","cashier")
+  .onSnapshot(s=>{
+    cashierSelect.innerHTML="";
+    s.forEach(d=>{
+      cashierSelect.innerHTML+=`<option value='${d.id}'>Cashier ${d.data().email}</option>`;
+    });
+  });
+
+  db.collection("collections")
+  .where("collector","==",uid)
+  .onSnapshot(s=>{
+    let html="";
+    s.forEach(d=>{
+      let x=d.data();
+      html+=`<div class='card'>${x.borrower} → ₱${x.amount} <br>Status: ${x.status}</div>`;
+    });
+    collectorList.innerHTML=html;
+  });
+}
+}
+
+// SEND COLLECTION (COLLECTOR → CASHIER ROUTING)
+function sendCollection(){
+  db.collection("collections").add({
+    borrower:borrower.value,
+    amount:amount.value,
+    collector:uid,
+    cashier:cashierSelect.value,
+    status:"pending",
+    timestamp:Date.now()
+  });
+}
+
+// CASHIER VERIFY
+function verify(id){
+  db.collection("collections").doc(id).update({
+    status:"verified",
+    verifiedAt:Date.now()
+  });
+}
+
+// BANK REPORT
+function generateReport(){
+  db.collection("collections").get().then(s=>{
+    let total=0;
+    s.forEach(d=>total+=Number(d.data().amount||0));
+    alert("BANK REPORT\nTotal Collections: "+s.size+"\nTotal Volume: ₱"+total);
+  });
+}
+
+function logout(){auth.signOut();location.reload();}
+</script>
+
+</body>
+</html>
