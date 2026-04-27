@@ -1,8 +1,9 @@
-// Firebase SDK
+// Firebase SDK (MODULAR - PRODUCTION READY)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// CONFIG (yung binigay mo)
+// CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDUsDkNGffjKdp8b0fIPswzUSKtXEWE_BI",
   authDomain: "kasipag-a6f31.firebaseapp.com",
@@ -13,9 +14,12 @@ const firebaseConfig = {
   measurementId: "G-Y3M658B7EL"
 };
 
-// INIT
+// INIT CORE
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-// EXPORT
-export { db };
+// SERVICES
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+// EXPORT (BANK CORE ENGINE)
+export { app, db, auth };
