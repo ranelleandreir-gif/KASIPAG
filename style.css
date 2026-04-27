@@ -1,0 +1,70 @@
+body{
+  margin:0;
+  font-family: Roboto, Arial, sans-serif;
+  background:#0b1220;
+  color:#fff;
+}
+
+/* TOP BAR */
+.topbar{
+  padding:15px;
+  background:rgba(255,255,255,0.05);
+  position:sticky;
+  top:0;
+  backdrop-filter: blur(15px);
+}
+
+/* CONTENT */
+.screen{
+  padding:15px;
+  padding-bottom:80px;
+}
+
+/* CARD STYLE (MOBILE) */
+.card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:15px;
+  margin-bottom:12px;
+  transition:0.3s;
+}
+
+.card:active{
+  transform:scale(0.98);
+}
+
+/* BOTTOM NAV (ANDROID STYLE) */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter: blur(15px);
+  padding:10px 0;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+
+.nav-item{
+  font-size:12px;
+  text-align:center;
+  flex:1;
+  cursor:pointer;
+}
+
+.nav-item:active{
+  color:#4da3ff;
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#4da3ff;
+  color:#fff;
+  margin-top:8px;
+}

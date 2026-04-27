@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SUPER GOD ADMIN</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Roboto;
+  background:#070b14;
+  color:#fff;
+}
+
+.topbar{
+  padding:15px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  font-weight:bold;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+  padding:15px;
+}
+
+.card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:15px;
+  border-radius:16px;
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:scale(1.03);
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border:none;
+  border-radius:10px;
+  background:#4da3ff;
+  color:white;
+}
+.danger{background:#ff4d4d;}
+.success{background:#22c55e;}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+👑 SUPER GOD MODE ADMIN PANEL
+</div>
+
+<div class="grid">
+
+  <div class="card" id="stats"></div>
+
+  <div class="card">
+    <h3>👥 Create User</h3>
+    <input id="email" placeholder="Email">
+    <select id="role">
+      <option value="cashier">Cashier</option>
+      <option value="collector">Collector</option>
+    </select>
+    <button onclick="createUser()">CREATE</button>
+  </div>
+
+  <div class="card">
+    <h3>⚠ System Control</h3>
+    <button class="danger" onclick="wipePending()">WIPE PENDING</button>
+    <button class="success" onclick="unlockAll()">UNLOCK SYSTEM</button>
+  </div>
+
+</div>
+
+<div id="transactions"></div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+
+// 🔥 LIVE STATS
+onSnapshot(collection(db,"collections"), snap => {
+
+  let total = 0;
+
+  snap.forEach(d => {
+    total += Number(d.data().amount || 0);
+  });
+
+  stats.innerHTML = `
+    <h2>📊 LIVE SYSTEM</h2>
+    <p>Transactions: ${snap.size}</p>
+    <p>Total Volume: ₱${total}</p>
+    <p>Status: 🟢 GOD MODE ACTIVE</p>
+  `;
+
+  let html = "";
+
+  snap.forEach(d => {
+    let x = d.data();
+
+    html += `
+      <div class="card">
+        <b>${x.borrower}</b><br>
+        ₱${x.amount}<br>
+        Status: ${x.status}<br>
+
+        <button onclick="forceVerify('${d.id}')">FORCE VERIFY</button>
+        <button class="danger" onclick="deleteTx('${d.id}')">DELETE</button>
+      </div>
+    `;
+  });
+
+  transactions.innerHTML = html;
+});
+
+
+// 👑 FORCE VERIFY ANY TRANSACTION
+window.forceVerify = async (id) => {
+  await updateDoc(doc(db,"collections",id), {
+    status:"verified"
+  });
+};
+
+
+// ❌ DELETE ANY TRANSACTION
+window.deleteTx = async (id) => {
+  await deleteDoc(doc(db,"collections",id));
+};
+
+
+// 👥 CREATE USER (SIMULATION ONLY)
+window.createUser = async () => {
+  await addDoc(collection(db,"users"), {
+    email: email.value,
+    role: role.value,
+    createdAt: Date.now()
+  });
+
+  alert("User created");
+};
+
+
+// ⚠ WIPE ALL PENDING
+window.wipePending = async () => {
+  alert("Feature requires backend function (security lock)");
+};
+
+
+// 🔓 UNLOCK SYSTEM
+window.unlockAll = () => {
+  alert("System unlocked (simulation mode)");
+};
+
+</script>
+
+</body>
+</html>

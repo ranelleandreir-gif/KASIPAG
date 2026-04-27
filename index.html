@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏦 GOD BANK SYSTEM</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Roboto;
+  background:#0b1220;
+  color:white;
+}
+
+/* HEADER */
+.header{
+  padding:15px;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+}
+
+/* CARD */
+.card{
+  margin:12px;
+  padding:15px;
+  border-radius:15px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+/* BUTTON */
+button{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#4da3ff,#6a5cff);
+  color:white;
+}
+
+/* GRID MENU */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  🏦 GOD MODE BANK SYSTEM
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>👑 Admin</h3>
+    <button onclick="go('admin')">Open</button>
+  </div>
+
+  <div class="card">
+    <h3>💰 Cashier</h3>
+    <button onclick="go('cashier')">Open</button>
+  </div>
+
+  <div class="card">
+    <h3>🚚 Collector</h3>
+    <button onclick="go('collector')">Open</button>
+  </div>
+
+  <div class="card">
+    <h3>➕ Add Account</h3>
+    <button onclick="go('register')">Create</button>
+  </div>
+
+</div>
+
+<script>
+function go(page){
+  location.href = page + ".html";
+}
+</script>
+
+</body>
+</html>
